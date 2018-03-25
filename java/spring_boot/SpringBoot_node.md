@@ -24,7 +24,7 @@ SpringBoot Note 2018-03-19T08.40.20
 	-   SpringBoot提供了一系列的工具集合
 
 包|包名
---- |	---
+---  | ---
 基础包|spring-boot-starter-parent
 ioc包|spring-boot-starter
 MVC|spring-boot-starter-web
@@ -55,145 +55,146 @@ SpringBoot提供了大量组件， 组件采用**@Configuration+@Bean**标记。
 ### 如何使用DataSource连接池
 
 1. 添加连接池开发包、驱动包、 SpringBoot基础包
-
-		<parent>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-parent</artifactId>
-				<version>1.5.10.RELEASE</version>
-		</parent>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter</artifactId>
-			</dependency>
-			<!-- dataSource(tomcat), jdbcTemplate -->
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-jdbc</artifactId>
-			</dependency>
-			<dependency>
-				<groupId>com.oracle</groupId>
-				<artifactId>ojdbc</artifactId>
-				<version>6</version>
-			</dependency>
-		</dependencies>
-	- 遇到maven添加ojdbc依赖问题，使用如下命令将ojdbc6.js添加到maven的本地仓库
-
-				mvn install:install-file 
-					-DgroupId=com.oracle
-					-DartifactId=ojdbc
-					-Dversion=6
-				 	-Dpackaging=jar
-					-Dfile=ojdbc6.jar
+```xml
+<parent>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter-parent</artifactId>
+<version>1.5.10.RELEASE</version>
+</parent>
+<dependencies>
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter</artifactId>
+</dependency>
+<!-- dataSource(tomcat), jdbcTemplate -->
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+<groupId>com.oracle</groupId>
+<artifactId>ojdbc</artifactId>
+<version>6</version>
+</dependency>
+</dependencies>
+```
+- 遇到maven添加ojdbc依赖问题，使用如下命令将ojdbc6.js添加到maven的本地仓库
+mvn install:install-file 
+	-DgroupId=com.oracle
+	-DartifactId=ojdbc
+	-Dversion=6
+	-Dpackaging=jar
+	-Dfile=ojdbc6.jar
 2. 在application.yml中配置连接池参数
-
-		spring:
-		 datasource:
-		  username: scott
-		  password: tiger
-		  url: jdbc:oracle:thin:@localhost:1521:XE 
-		  driverClassName:oracle.jdbc.driver.OracleDriver
+```yml
+ spring:
+  datasource:
+   username: scott
+   password: tiger
+   url: jdbc:oracle:thin:@localhost:1521:XE 
+   driverClassName: oracle.jdbc.driver.OracleDriver
+```
 3. 开启@SpringBootApplication标记创建Spring容器,获取DataSource对象(id为dataSource)
+```java
+@SpringBootApplication
+public class MyBootApplication {
 
-		@SpringBootApplication
-		public class MyBootApplication {
-
-		}
-
+}
+```
 #### SpringBoot默认连接池原理
-SpringBoot利用DataSourceAutoConfiguration创建出id=dataSource的连接池对象。内部创建优先级为：
+SpringBoot利用**DataSourceAutoConfiguration**创建出**id=dataSource**的连接池对象。内部创建优先级为：
 
-- 首先会尝试创建tomcat连接池(tomcat-jdbc包)
+- 首先会尝试创建**tomcat**连接池(tomcat-jdbc包)
 
-		spring-boot-start-jdbc引入后会自动包含tomcat-jdbc包
+   spring-boot-start-jdbc引入后会自动包含tomcat-jdbc包
 
-- 如果创建tomcat-jdbc失败，会创建hiKariCP连接池(hikaricp包)
-- 如果创建HikariCP失败，会创建dbcp连接池（commons-dbcp包)
-- 如果创建dbcp失败,会创建dbcp2连接池(commons-dbcp2包)
+- 如果创建tomcat-jdbc失败，会创建**hiKariCP**连接池(hikaricp包)
+- 如果创建HikariCP失败，会创建**dbcp**连接池（commons-dbcp包)
+- 如果创建dbcp失败,会创建**dbcp2**连接池(commons-dbcp2包)
 
 如果需要创建指定类型的连接池，可以采用下面方法：
 
 - 引入选用 的连接池的jar包
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+    <!--  -->
+    <exclusions>
+        <exclusion>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
+        </exclusion>
+    </exclusions>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-			<!--  -->
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.tomcat</groupId>
-					<artifactId>tomcat-jdbc</artifactId>
-				</exclusion>
-			</exclusions>
-					
-		</dependency>
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-		</dependency>
-
+</dependency>
+<dependency>
+    <groupId>commons-dbcp</groupId>
+    <artifactId>commons-dbcp</artifactId>
+</dependency>
+```
 - 在application.yml 添加指定类型连接池(指定连接池类型或者将spring-boot-starter-jdbc中tomcat-jdbc排除)
 	
 		spring.datasource.type: org.apache.commons.dbcp.BasicDataSource
 
-方法二： 利用@Configuration+@Bean自定义组件
+方法二： 利用**@Configuration+@Bean**自定义组件
+```java
+package cn.xdl.config;
 
-	package cn.xdl.config;
-	
-	import javax.sql.DataSource;
-	import org.apache.commons.dbcp.BasicDataSource;
-	import org.springframework.context.annotation.Bean;
-	import org.springframework.context.annotation.Configuration;
-	
-	@Configuration
-	public class MyDataSourceConfig {
-	
-	    @Bean
-	    public DataSource myDataSource(){
-	        BasicDataSource ds = new BasicDataSource();
-	        ds.setUsername("SCOTT");
-	        ds.setPassword("TIGER");
-	        ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
-	        ds.setDriverClassName("oracle.jdbc.OracleDriver");
-	        return ds;
-	    }
-	
-	}
+import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
+public class MyDataSourceConfig {
+
+    @Bean
+    public DataSource myDataSource(){
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUsername("SCOTT");
+        ds.setPassword("TIGER");
+        ds.setUrl("jdbc:oracle:thin:@localhost:1521:XE");
+        ds.setDriverClassName("oracle.jdbc.OracleDriver");
+        return ds;
+    }
+
+}
+```
 > 如果指定了自定义的连接池，系统自动配置将失败
 
 
 ### 配置参数注入
 
-在SpringBoot中自动配置组件ConfigurationPropertiesAutoConfiguration,可以将Properties文件中的配置参数注入到Bean对象属性中。
+在SpringBoot中自动配置组件**ConfigurationPropertiesAutoConfiguration**,可以将Properties文件中的配置参数注入到Bean对象属性中。
 
 - application.yml
-		
-		spring.name=SCOTT
-		spring.password=tiger
-
+	```yml
+	spring.name: SCOTT
+	spring.password: tiger
+	```
 - 利用@ConfigurationPreperties注入参数
-	
-		@Configuration
-		@ConfigurationProperties(prefix="spring")
-		public class MyDataSourceConfig {
-			private String name;
-			private String password;
-		}
-	
+	```java
+	@Configuration
+	@ConfigurationProperties(prefix="spring")
+	public class MyDataSourceConfig {
+	    private String name;
+	    private String password;
+	}
+	```
 > 如果参数名和属性不一致，可以使用@Value("${xxx}")表达式指定注入
 
 - 也可以将@ConfigurationProperties用在@Bean方法上，表示给@Bean对象属性注入参数
-	
-		@Bean
-		@ConfigurationProperties(prefix="spring")
-		public DataSource myDataSource() {
-			System.out.println("-----" + name);
-			System.out.println("-------" + password);
-			...
-			return ds;
-		}
-
+	```java
+	@Bean
+	@ConfigurationProperties(prefix="spring")
+	public DataSource myDataSource() {
+	    System.out.println("-----" + name);
+	    System.out.println("-------" + password);
+	    ...
+	    return ds;
+	}
+	```
 ### SpringBoot中使用JdbcTemplate
 JdbcTemplate也是JdbcTemplateAutoConfiguration自动配置组件创建。在应用中，只需要提供连接参数、jar包,然后直接编写实体类、DAO，注入JdbcTemplate使用
 
@@ -637,12 +638,12 @@ AOP关键概念：切面、切入点、通知。
 			    }
 			
 			}
-	
+			
 			Filter
 			编写Filter组件，实现Filter接口
 			利用@WebFilter注解配置
 			在启动类中， 添加@ServletComponentScan
-	
+			
 			@WebFilter(urlPatterns="/hello.do",filterName="somefilter")
 			public class SomeFilter implements Filter{
 			
@@ -667,15 +668,15 @@ AOP关键概念：切面、切入点、通知。
 			    }
 			
 			}
-	
+			
 			Listener
 			编写Listener组件
 			利用@WebListener注解配置
 			在启动类中， 添加@ServletComponentScan
-	
+			
 			启用druid连接池的监控功能
 			配置启用StatViewServlet组件
-	
+			
 			@WebServlet(urlPatterns="/druid/*",initParams={
 			    @WebInitParam(name="loginUsername",value="xdl"),
 			    @WebInitParam(name="loginPassword",value="123")
@@ -683,9 +684,9 @@ AOP关键概念：切面、切入点、通知。
 			public class DruidStatServlet extends StatViewServlet{
 			
 			}
-	
+			
 			配置启用WebStatFilter组件 
-	
+			
 			@WebFilter(urlPatterns="/*",initParams={
 				@WebInitParam(name="exclusions",value="*.js,*.jpg,*.css,/druid/*")
 			})
@@ -935,7 +936,7 @@ Redis优点：
 			
 			}
 			读取Java对象
-	
+			
 			@Test
 			public void test3(){
 			    ApplicationContext ac = 
