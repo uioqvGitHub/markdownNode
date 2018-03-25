@@ -199,43 +199,40 @@ public class MyDataSourceConfig {
 JdbcTemplate也是JdbcTemplateAutoConfiguration自动配置组件创建。在应用中，只需要提供连接参数、jar包,然后直接编写实体类、DAO，注入JdbcTemplate使用
 
 1.	配置DataSource连接池
-	-	在pom.xml引入jar包定义
-			在application.yml定义数据库链接参数
-			编写实体类
-
-		Dept.java,属性名和类型与数据表保持一致
-
-			编写DAO接口和实现类
-
-		扫描DAO实现类，并且注入JdbcTemplate使用。
+  - 在pom.xml引入jar包定义
+  - 在application.yml定义数据库链接参数
+  - 编写实体类
+  - Dept.java,属性名和类型与数据表保持一致
+  - 编写DAO接口和实现类
+  - 扫描DAO实现类，并且注入JdbcTemplate使用。
 
 ### SpringBoot中使用mybatis
 1. 搭建SpringBoot+MyBatis环境
 
 	- 在pom.xml中添加mybatis-spring-boot-start定义和DataSource
-	
-			<dependency>
-				<groupId>org.mybatis.spring.boot</groupId>
-				<artifactId>mybatis-spring-boot-starter</artifactId>
-				<version>1.3.2</version>
-			</dependency>
-
+	```xml
+	<dependency>
+	    <groupId>org.mybatis.spring.boot</groupId>
+	    <artifactId>mybatis-spring-boot-starter</artifactId>
+	    <version>1.3.2</version>
+	</dependency>
+	```
 2. 编写实体类
 
 3. sql定义文件
+	```xml
+	<?xml version="1.0" encoding="UTF-8" ?>  
+	<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+	  "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
 	
-		<?xml version="1.0" encoding="UTF-8" ?>  
-		<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
-		 "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
-		 
-		<mapper namespace="com.uioqv.mapper.EmpMapper">
-			<!-- 定义SQL语句 -->	
-		    <select id="findAll" 
-		      resultType="com.uioqv.entity.Emp">
-		         select * from dept where deptno = #{no}
-		    </select>
-		</mapper>
-
+	<mapper namespace="com.uioqv.mapper.EmpMapper">
+	    <!-- 定义SQL语句 -->	
+	    <select id="findAll" 
+	            resultType="com.uioqv.entity.Emp">
+	        select * from dept where deptno = #{no}
+	    </select>
+	</mapper>
+	```
 4. 编写Mapper映射接口
 
 		package com.uioqv.mapper;
