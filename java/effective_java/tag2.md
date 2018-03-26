@@ -381,5 +381,88 @@ public class Person {
 
 ### 第六条： 消除过期的对象引用
 
+#### 内存泄漏的常见来源
 
+##### 1. 过期引用
+
+> 一个简单实现栈的例子
+
+```java
+public class Stack {
+    private Object[] elements;
+    private int size = 0;
+    private static final int DEFAULT_INTIAL_CAPACITY = 16;
+    
+    public Stack() {
+        elements = new Object[DEFAULT_INTIAL_CAPACITY];
+    }
+    
+    public void push(Object e) {
+        ensureCapacity();
+        elements[size++] = e;
+    }
+    
+    public Object pop() {
+        if( size == 0 ) 
+            throw new EmptyStakException();
+        return elements[--size];
+    }
+    
+    private void ensureCapacity() {
+        if( elements.length == size )
+            elements = Arrays.copyOf(elements, 2*size +1);
+    }
+}
+```
+
+​	这个程序中隐藏着一个问题， 这段程序有一个“内在泄漏”， 如果一个栈先是增长，然后再收缩，那么，从栈中弹出来的对象将不会被当作垃圾回收。 这是因为栈内部维护着对这些对象的过期引用。
+
+​	在本例中， 凡是在elements数组“活动部分”之外的任何引用都是过期的。 活动部分是指elements中下标小于size的那些元素。
+
+- 清除过期引用
+
+> 修复pop的内存泄漏
+
+```java
+public Object pop() {
+    if( size == 0 ) 
+        throw new EmptyStackException();
+    Object result = elemets[--size];
+    elements[size+1] = null;
+    
+}
+```
+
+​	清除过期引用的另一个好处是， 如果它们以后又被错误地解除引用， 程序就会立即抛出NullPointerException异常， 而不是悄悄地错误运行下去。
+
+> 清空对象引用应该是一种例外， 而不是一种规范行为。 消除过期引用最好的方法是让包含该引用的变量结束其生命周期。 
+
+- 清除过期引用的时机
+
+​	Stack 类自己管理内存。 管理一个代表栈的数组，它引用着其他对象。  处理出栈操作时，只是将栈指针下移， 过期元素处理自由状态， 但因为数组对其的引用， 垃圾回收器无法得知。 
+
+> 一般而言， 只要类是自己管理内在， 程序员就应该警惕内在泄漏问题。
+
+##### 2. 缓存
+
+​	一旦把对象引用放到缓存中， 它就很容易被遗忘掉， 可以使用**WeakHashMap**代表缓存， 当缓存中的项过期之后，它们就会自动被删除。
+
+> 只有当缓存项的生命周期是由该键的外部引用而不是值决定时，**WeakHashMap**才有用处。
+
+- 缓存项的生命周期是否有意义
+
+​	 随着时间的推移， 其中的项会变得越来越没有价值。在这种情况下， 缓存应该时不时地清除掉没用的项。 
+
+1. 这项清除工作可以由一个后台线程(可能是TImer或者ScheduledThreadPollExcutor) 来完成
+2. 也可以在给缓存添加新条目的时候顺便进行清理（可以利用重写LinkedHashMap类的removeEldestEntry方法来实现）
+
+##### 3. 监听器和其他回调
+
+​	如果你实现了一个API， 客户端在这个API中注册回调， 却没有显式地取消注册， 它他们就会积聚。
+
+- 确保回调立即被当作垃圾回收的最佳方法是只保存它们的弱引用(weak reference)
+
+  > 例如， 只将它们保存成WeakHashMap中的键
+
+### 第七条： 避免使用终结方法
 

@@ -17,11 +17,11 @@ SpringBoot Note 2018-03-19T08.40.20
 
 主要用于快速开发 Spring应用程序。
 
-	-	SpringBoot对Spring框架做了封装
-	-	SpringBoot内置Tomcat服务器
-	-	SpringBoot具有自动配置功能， 去除XML配置， 安全采用Java(注解)配置
-	-   SpringBoot内置自动创建很多对象
-	-   SpringBoot提供了一系列的工具集合
+- SpringBoot对Spring框架做了封装
+- SpringBoot内置Tomcat服务器
+- SpringBoot具有自动配置功能， 去除XML配置， 安全采用Java(注解)配置
+- SpringBoot内置自动创建很多对象
+- SpringBoot提供了一系列的工具集合
 
 包|包名
 ---  | ---
@@ -33,13 +33,13 @@ AOP|spring-boot-starter-aop
 mybatis|mybatis-spring-boot-starter
 
 ### springboot parent pom.xml
-
-	<parent>
-	  <groupId>org.springframework.boot</groupId>
-	  <artifactId>spring-boot-starter-parent</artifactId>
-	  <version>1.5.10.RELEASE</version>
-	</parent>
-
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.5.10.RELEASE</version>
+</parent>
+```
 ### @SpringBootApplication 注解 
 
 @SpringBootApplication是一个标记集合，其包含
@@ -80,11 +80,11 @@ SpringBoot提供了大量组件， 组件采用**@Configuration+@Bean**标记。
 ```
 - 遇到maven添加ojdbc依赖问题，使用如下命令将ojdbc6.js添加到maven的本地仓库
 mvn install:install-file 
-	-DgroupId=com.oracle
-	-DartifactId=ojdbc
-	-Dversion=6
-	-Dpackaging=jar
-	-Dfile=ojdbc6.jar
+		-DgroupId=com.oracle
+		-DartifactId=ojdbc
+		-Dversion=6
+		-Dpackaging=jar
+		-Dfile=ojdbc6.jar
 2. 在application.yml中配置连接池参数
 ```yml
  spring:
@@ -119,14 +119,15 @@ SpringBoot利用**DataSourceAutoConfiguration**创建出**id=dataSource**的连�
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-jdbc</artifactId>
-    <!--  -->
+    <!-- 
+	将jar包中的tomcat-jdbc过滤掉
     <exclusions>
         <exclusion>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
         </exclusion>
     </exclusions>
-
+ 	-->
 </dependency>
 <dependency>
     <groupId>commons-dbcp</groupId>
@@ -161,7 +162,7 @@ public class MyDataSourceConfig {
 
 }
 ```
-> 如果指定了自定义的连接池，系统自动配置将失败
+> 如果指定了自定义的连接池，系统自动配置将失效
 
 
 ### 配置参数注入
@@ -196,6 +197,7 @@ public class MyDataSourceConfig {
 	}
 	```
 ### SpringBoot中使用JdbcTemplate
+
 JdbcTemplate也是JdbcTemplateAutoConfiguration自动配置组件创建。在应用中，只需要提供连接参数、jar包,然后直接编写实体类、DAO，注入JdbcTemplate使用
 
 1.	配置DataSource连接池
@@ -258,445 +260,460 @@ JdbcTemplate也是JdbcTemplateAutoConfiguration自动配置组件创建。在应
 #### 开发Web服务（Restful服务）
 
 
-1.	在pom.xml添加spring-boot-starter-web定义
-
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-
-2.	编写DeptController，利用@RestController、@RequestMapping标记
-
-		@RestController//@Controller+@ResponseBody
-		public class DeptController {
-		
-		    @Autowired
-		    private DeptDao deptDao;
-		
-		    @RequestMapping(value="/dept",method=RequestMethod.GET)
-		    public List<Dept> loadAll(){
-		        return deptDao.loadAll();
-		    }
-		
-		    @RequestMapping(value="/dept/{id}",method=RequestMethod.GET)
-		    public MyResult loadDept(@PathVariable("id")int no){
-		        MyResult result = new MyResult();
-		        Dept dept = deptDao.loadById(no);
-		        if(dept == null){
-		            result.setStatus(0);
-		            result.setMsg("未找到符合条件记录");
-		        }else{
-		            result.setStatus(1);
-		            result.setMsg("查询成功");
-		            result.setData(dept);
-		        } 
-		        return result;
-		    }
-		
-		}
-
-	.	定义共同的返回对象MyResult.java
-
-		public class MyResult implements Serializable{
-		
-		    private int status;//处理结果状态
-		    private String msg;//提示信息
-		    private Object data;//返回的数据
-		
-		    //省略了set和get方法
-		}
-
+1. 在pom.xml添加spring-boot-starter-web定义
+	```xml
+	<dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+	```
+2. 编写DeptController，利用@RestController、@RequestMapping标记
+	```java
+	@RestController//@Controller+@ResponseBody
+	public class DeptController {
+	
+	    @Autowired
+	    private DeptDao deptDao;
+	
+	    @RequestMapping(value="/dept",method=RequestMethod.GET)
+	    public List<Dept> loadAll(){
+	        return deptDao.loadAll();
+	    }
+	
+	    @RequestMapping(value="/dept/{id}",method=RequestMethod.GET)
+	    public MyResult loadDept(@PathVariable("id")int no){
+	        MyResult result = new MyResult();
+	        Dept dept = deptDao.loadById(no);
+	        if(dept == null){
+	            result.setStatus(0);
+	            result.setMsg("未找到符合条件记录");
+	        }else{
+	            result.setStatus(1);
+	            result.setMsg("查询成功");
+	            result.setData(dept);
+	        } 
+	        return result;
+	    }
+	
+	}
+	```
+3. 定义共同的返回对象MyResult.java
+	```java
+	public class MyResult implements Serializable{
+	
+	    private int status;//处理结果状态
+	    private String msg;//提示信息
+	    private Object data;//返回的数据
+	
+	    //省略了set和get方法
+	}
+	```
 #### 开发JSP应用（PC网站应用）
 
-/dept/list.do-->DispatcherServlet-->HandlerMapping-->ListController-->DeptDao -->ModelAndView-->ViewResolver-->/list.jsp
+>  /dept/list.do-->DispatcherServlet-->HandlerMapping-->ListController-->DeptDao -->ModelAndView-->ViewResolver-->/list.jsp
 
-1.	编写ListController
-
-	    @Controller
-	    public class ListController {
+1. 编写ListController
+	```java
+	@Controller
+	public class ListController {
 	
-	        @Autowired
-	        private DeptDao deptDao;
-	    
-	        @RequestMapping("/dept/list.do")
-	        public ModelAndView list(){
-	            List<Dept> list = deptDao.loadAll();
-	            ModelAndView mav = new ModelAndView();
-	            mav.setViewName("list");
-	            mav.getModel().put("depts", list);
-	            return mav;
-	        }
-	    
+	    @Autowired
+	    private DeptDao deptDao;
+	
+	    @RequestMapping("/dept/list.do")
+	    public ModelAndView list(){
+	        List<Dept> list = deptDao.loadAll();
+	        ModelAndView mav = new ModelAndView();
+	        mav.setViewName("list");
+	        mav.getModel().put("depts", list);
+	        return mav;
 	    }
+	
+	}
+	```
+2. 在application.properties添加view参数配置
+  ```yml
+  spring:
+   view:
+    prefix: /
+    suffix: .jsp
+  ```
+3. 在pom.xml中追加jstl和tomcat-embed-jasper引擎
+  ```xml
+  <dependency>
+  <groupId>jstl</groupId>
+  <artifactId>jstl</artifactId>
+  <version>1.2</version>
+  </dependency>
 
-	.	在application.properties添加view参数配置
-
-	    spring.mvc.view.prefix=/
-	    spring.mvc.view.suffix=.jsp
-
-	.	在pom.xml中追加jstl和tomcat-embed-jasper引擎
-
-	    <dependency>
-	      <groupId>jstl</groupId>
-	      <artifactId>jstl</artifactId>
-	      <version>1.2</version>
-	    </dependency>
-	    
-	    <dependency>
-	      <groupId>org.apache.tomcat.embed</groupId>
-	      <artifactId>tomcat-embed-jasper</artifactId>
-	    </dependency>
-
-	： 在配置时出现No Java compiler available异常，	原因是tomcat-embed-jasper所依赖的ecj版本不正确导致，
-将ecj修改为最高版本问题解决。
-
-			<dependency>
-				<groupId>org.apache.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-jasper</artifactId>
-				<exclusions>
-					<exclusion>
-						<groupId>org.eclipse.jdt</groupId>
-						<artifactId>ecj</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jdt.core.compiler</groupId>
-				<artifactId>ecj</artifactId>
-				<version>4.6.1</version>
-			</dependency>
-
-	.	编写list.jsp，使用JSTL和EL表达式显示
-
-		<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-		<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-		<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-		<html>
-		<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>Insert title here</title>
-		</head>
-		<body>
-		    <h1>部门列表</h1>
-		    <table>
-		        <tr>
-		            <td>编号</td>
-		            <td>部门名</td>
-		            <td>地址</td>
-		        </tr>
-		        <c:forEach items="${depts}" var="dept">
-		        <tr>
-		            <td>${dept.deptno}</td>
-		            <td>${dept.dname}</td>
-		            <td>${dept.loc}</td>
-		        </tr>
-		        </c:forEach>
-		    </table>
-		</body>
-
+  <dependency>
+  <groupId>org.apache.tomcat.embed</groupId>
+  <artifactId>tomcat-embed-jasper</artifactId>
+  </dependency>
+  ```
+  > 在配置时出现No Java compiler available异常，	原因是tomcat-embed-jasper所依赖的ecj版本不正确导致， 将ecj修改为最高版本问题解决。
+  ```xml
+  <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-jasper</artifactId>
+      <exclusions>
+          <exclusion>
+              <groupId>org.eclipse.jdt</groupId>
+              <artifactId>ecj</artifactId>
+          </exclusion>
+      </exclusions>
+  </dependency>
+  <dependency>
+      <groupId>org.eclipse.jdt.core.compiler</groupId>
+      <artifactId>ecj</artifactId>
+      <version>4.6.1</version>
+  </dependency>
+  ```
+4. 编写list.jsp，使用JSTL和EL表达式显示
+    ```jsp
+    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>Insert title here</title>
+        </head>
+        <body>
+            <h1>部门列表</h1>
+            <table>
+                <tr>
+                    <td>编号</td>
+                    <td>部门名</td>
+                    <td>地址</td>
+                </tr>
+                <c:forEach items="${depts}" var="dept">
+                    <tr>
+                        <td>${dept.deptno}</td>
+                        <td>${dept.dname}</td>
+                        <td>${dept.loc}</td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </body>
+    </html>
+    ```
 #### 开发thymeleaf模板应用（PC网站应用）
 
-模板技术：velocity、freemarker、thymeleaf等。
+模板技术：**velocity**、**freemarker**、**thymeleaf**等。
 
-JSP--》转译成Servlet--》编译Servlet--》运行--》生成HTML响应输出
+> JSP--》转译成Servlet--》编译Servlet--》运行--》生成HTML响应输出
 
-模板文件+模板表达式（提取模型数据）--》生成HTML响应输出
+> 模板文件+模板表达式（提取模型数据）--》生成HTML响应输出
 
--	velocity技术： *.vm+VTL表达式
+- velocity技术： *.vm+VTL表达式
 
-		freemarker技术： *.ftl+FTL表达式
+- freemarker技术： *.ftl+FTL表达式
 
-		thymeleaf技术： *.html+TH表达式
+- thymeleaf技术： *.html+TH表达式
 
-/template/list.do-->DispatcherServlet-->HandlerMapping-->TemplateController-->DeptDao-->返回ModelAndView-->thymeleaf模板文件 （src\main\resources\templates）
+> /template/list.do-->DispatcherServlet-->HandlerMapping-->TemplateController-->DeptDao-->返回ModelAndView-->thymeleaf模板文件 （**src\main\resources\templates**）
 
 1.	在pom.xml追加thymeleaf定义
-
-	    <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-thymeleaf</artifactId>
-	    </dependency>
+	```xml
+	<dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+	</dependency>
+	```
+2. 编写Controller（与JSP响应Controller相同）
+	```java
+	@Controller
+	public class TemplateController {
 	
-	    编写Controller（与JSP响应Controller相同）
-	    
-	    @Controller
-	    public class TemplateController {
-	    
-	        @Autowired
-	        private DeptDao deptDao;
-	    
-	        @RequestMapping("/template/list.do")
-	        public ModelAndView list(){
-	            List<Dept> list = deptDao.loadAll();
-	            ModelAndView mav = new ModelAndView();
-	            mav.setViewName("list");
-	            mav.getModel().put("depts", list);
-	            return mav;
-	        }
-	    
+	    @Autowired
+	    private DeptDao deptDao;
+	
+	    @RequestMapping("/template/list.do")
+	    public ModelAndView list(){
+	        List<Dept> list = deptDao.loadAll();
+	        ModelAndView mav = new ModelAndView();
+	        mav.setViewName("list");
+	        mav.getModel().put("depts", list);
+	        return mav;
 	    }
+	
+	}
+	```
+3. 在src/main/resources/templates添加模板文件
 
-	.	在src/main/resources/templates添加模板文件
+      > 注意：html模板文件，开始和结束标记必须匹配；给< html>元素添加xmlns:th="http://www.thymeleaf.org"定义。
 
-	    注意：html模板文件，开始和结束标记必须匹配；给< html>元素添加xmlns:th="http://www.thymeleaf.org"定义。
-	    
-	    <!DOCTYPE html>
-	    <html xmlns:th="http://www.thymeleaf.org">
-	    <head>
-	    <meta charset="UTF-8"/>
-	    <title>Insert title here</title>
-	    </head>
-	    <body>
-	        <h1>部门列表(thymeleaf模板)</h1>
-	        <table>
-	            <tr>
-	                <td>编号</td>
-	                <td>名称</td>
-	                <td>地址</td>
-	            </tr>
-	            <tr th:each="dept:${depts}">
-	                <td th:text="${dept.deptno}"></td>
-	                <td th:text="${dept.dname}"></td>
-	                <td th:text="${dept.loc}"></td>
-	            </tr>
-	        </table>
-	    </body>
-	    </html>
-
+      ```html
+      <!DOCTYPE html>
+      <html xmlns:th="http://www.thymeleaf.org">
+          <head>
+              <meta charset="UTF-8"/>
+              <title>Insert title here</title>
+          </head>
+          <body>
+              <h1>部门列表(thymeleaf模板)</h1>
+              <table>
+                  <tr>
+                      <td>编号</td>
+                      <td>名称</td>
+                      <td>地址</td>
+                  </tr>
+                  <tr th:each="dept:${depts}">
+                      <td th:text="${dept.deptno}"></td>
+                      <td th:text="${dept.dname}"></td>
+                      <td th:text="${dept.loc}"></td>
+                  </tr>
+              </table>
+          </body>
+      </html>
+      ```
 
 
 ### springBootMvc 异常处理
-springboot有一个ErrorMvcAutoConfiguration自动配置组件， 默认加载BasicErrorController, Controller中定义了丙个/error处理。 （一个html响应、 一个json响应）
-当mvc程序底层发生异常，会自动转向/error请求处理,显示错误界面。
+
+​	springboot有一个**ErrorMvcAutoConfiguration**自动配置组件， 默认加载**BasicErrorController**, Controller中定义了两个/error处理。 （一个**html**响应、 一个**json**响应）
+	当mvc程序底层发生异常，会自动转向**/error**请求处理,显示错误界面。
 #### 自定义ErrorController （全局处理）
-自定义ErrorController组件，需要实现ErrorController接口或继承AbstractErrorController都可以 。
 
-		@Controller
-		public class MyErrorController implements ErrorController{
-		
-		    //自定义/error请求处理逻辑
-		    @RequestMapping("/error")
-		    public ModelAndView error(){
-		        ModelAndView mav = new ModelAndView();
-		        mav.setViewName("error");//error.html
-		        return mav;
-		    }
-		
-		    @Override
-		    public String getErrorPath() {
-		        return "/error";
-		    }
-		
-		}
+​	自定义ErrorController组件，需要实现ErrorController接口或继承AbstractErrorController都可以 。
 
+```java
+@Controller
+public class MyErrorController implements ErrorController{
+
+    //自定义/error请求处理逻辑
+    //页面的url必需是 /error
+    @RequestMapping("/error")
+    public ModelAndView error(){
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("error");//error.html
+        return mav;
+    }
+
+    @Override
+    public String getErrorPath() {
+        return "/error";
+    }
+
+}
+```
 #### 使用@ExceptionHandler
-处理某个Controller异常， 应用方法就是在Controller添加带Exception参数的方法，然后使用@ExceptionHander标记。
-
-		@ExceptionHandler
-		@ResponseBody
-		public MyResult handlerException(Exception e){
-		    MyResult result = new MyResult();
-		    result.setStatus(0);
-		    result.setMsg("参数有错");
-		    result.setData(e.getMessage());
-		    return result;
-		}
-
+​	处理某个Controller异常， 应用方法就是在Controller添加带Exception参数的方法，然后使用**@ExceptionHander**标记。
+```java
+@ExceptionHandler
+@ResponseBody
+public MyResult handlerException(Exception e){
+    MyResult result = new MyResult();
+    result.setStatus(0);
+    result.setMsg("参数有错");
+    result.setData(e.getMessage());
+    return result;
+}
+```
 ### SpringBootMVC 拦截器
 
 1. 编写拦截器组件，实现HandlerInterceptor接口
-
-				@Component//扫描
-				public class SomeInterceptor implements HandlerInterceptor{
-				
-				    @Override
-				    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-				            throws Exception {
-				        System.out.println("开始执行Controller处理");
-				        return true;
-				    }
-				
-				    @Override
-				    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-				            ModelAndView modelAndView) throws Exception {
-				        // TODO Auto-generated method stub
-				        System.out.println("Controller执行完毕");
-				    }
-				
-				    @Override
-				    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
-				            throws Exception {
-				        // TODO Auto-generated method stub
-				        String param = request.getQueryString();
-				        System.out.println(request.getRequestURI()+"?"+param+"请求处理完毕");
-				    }
-				
-				}
-
-2. 配置拦截器
-
-				@Configuration
-				public class InterceptorConfiguration extends WebMvcConfigurerAdapter{
-				
-				    @Autowired
-				    private SomeInterceptor some;
-				
-				    @Override
-				    public void addInterceptors(InterceptorRegistry registry) {
-				        registry.addInterceptor(some).addPathPatterns("/compute.do");
-				    }
-				
-				}
-
-### SpringBootAOP
-AOP关键概念：切面、切入点、通知。
-
-案例：记录每个Controller方法执行的时间
-
-- 切面：计算方法执行时间
-- 切入点：所有Controller方法 within(cn.xdl.controller.*)
-- 通知：环绕通知 @Around
-
-
-1. 在pom.xml追加aop定义
-
-			<dependency>
-			    <groupId>org.springframework.boot</groupId>
-			    <artifactId>spring-boot-starter-aop</artifactId>
-			</dependency>
-
-2. 编写切面组件，使用@Aspect、@Around等标记
-
-			@Component//ioc
-			@Aspect//定义为切面
-			public class WatchBean {
-			
-			    @Around("within(cn.xdl.controller.*)")
-			    public Object execute(ProceedingJoinPoint pjp) throws Throwable{
-			        //开始计时
-			        StopWatch watch = new StopWatch();
-			        watch.start();
-			        Object obj = pjp.proceed();//执行controller方法
-			        //结束计时
-			        watch.stop();
-			        long time = watch.getTotalTimeMillis();//执行时长
-			        String targetClass = pjp.getTarget().getClass().getName();//组件名
-			        String methodName = pjp.getSignature().getName();//方法名
-			        System.out.println("组件："+targetClass+"方法:"+methodName+"执行时长为:"+time+"ms");
-			        return obj;
-			    }
-			
-			}
-
-### SpringBoot静态资源管理
-在SpringBoot工程中，默认静态资源目录如下：
-
-		src/main/resources/public (最低)
-		src/main/resources/statis
-		src/main/resources/resources
-		src/main/resources/META-INF/resources (最高)
-
-资源目录杜撰优先级， 从高到低查找
-资源目录杜撰优先级， 从高到低查找
-
-如果需要自定义静态资源存储路径，可以采用下面配置类
-
-		@Configuration
-		public class MyResourceConfiguration extends WebMvcConfigurerAdapter{
-		
-		    @Override
-		    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		        registry.addResourceHandler("/mystatic/**")
-		            .addResourceLocations("classpath:/mystatic/");
-		    }
-		
-		}
+	```java
+	@Component//扫描
+	public class SomeInterceptor implements HandlerInterceptor{
 	
-	-	提示：不要使用/** 映射，会破坏原有默认静态资源访问。
+	    @Override
+	    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, 
+	                             Object handler) throws Exception {
+	        System.out.println("开始执行Controller处理");
+	        return true;
+	    }
+	
+	    @Override
+	    public void postHandle(HttpServletRequest request, HttpServletResponse response, 
+	                           Object handler, ModelAndView modelAndView) throws Exception {
+	        // TODO Auto-generated method stub
+	        System.out.println("Controller执行完毕");
+	    }
+	
+	    @Override
+	    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, 
+	                                Object handler, Exception ex)throws Exception {
+	        // TODO Auto-generated method stub
+	        String param = request.getQueryString();
+	        System.out.println(request.getRequestURI()+"?"+param+"请求处理完毕");
+	    }
+	
+	}
+	```
+2. 配置拦截器
+	```java
+	@Configuration
+	public class InterceptorConfiguration extends WebMvcConfigurerAdapter{
+	
+	    @Autowired
+	    private SomeInterceptor some;
+	
+	    @Override
+	    public void addInterceptors(InterceptorRegistry registry) {
+	        registry.addInterceptor(some).addPathPatterns("/compute.do");
+	    }
+	
+	}
+	```
+### SpringBootAOP
+
+​	AOP关键概念：切面、切入点、通知。
+> 案例：记录每个Controller方法执行的时间
+> - 切面：计算方法执行时间
+> - 切入点：所有Controller方法 within(cn.xdl.controller.*)
+> - 通知：环绕通知 @Around
+
+
+1. 在**pom.xml**追加**aop**定义
+  ```xml
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+  </dependency>
+  ```
+
+2. 编写切面组件，使用**@Aspect**、**@Around**等标记
+
+  > 环绕通知要在参数中加 ProceedingJoinPoint 类对象， 调用被拦截的方法
+
+  ```java
+  @Component//ioc
+  @Aspect//定义为切面
+  public class WatchBean {
+      @Around("within(cn.xdl.controller.*)")
+      public Object execute(ProceedingJoinPoint pjp) throws Throwable{
+          //开始计时
+          StopWatch watch = new StopWatch();
+          watch.start();
+          Object obj = pjp.proceed();//执行controller方法
+          //结束计时
+          watch.stop();
+          long time = watch.getTotalTimeMillis();//执行时长
+          String targetClass = pjp.getTarget().getClass().getName();//组件名
+          String methodName = pjp.getSignature().getName();//方法名
+          System.out.println("组件："+targetClass+"方法:"+methodName+"执行时长为:"+time+"ms");
+          return obj;
+      }
+  }
+  ```
+### SpringBoot静态资源管理
+​	在SpringBoot工程中，默认静态资源目录如下：
+
+> - src/main/resources/public (最低)
+> - src/main/resources/statis
+> - src/main/resources/resources
+> - src/main/resources/META-INF/resources (最高)
+
+​	资源目录按照优先级， 从高到低查找
+
+​	如果需要自定义静态资源存储路径，可以采用下面配置类
+```java
+@Configuration
+public class MyResourceConfiguration extends WebMvcConfigurerAdapter{
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/mystatic/**")
+            .addResourceLocations("classpath:/mystatic/");
+    }
+
+}
+```
+>提示：不要使用/** 映射，会破坏原有默认静态资源访问。
 
 ### SpringBoot对JavaWeb集成
 
 1. Servlet
-	-	编写Servlet组件， 继承HttpServlet
-			利用@WebServlet注解配置
-			在启动类中，添加@ServletComponentScan
+  - 编写Servlet组件， 继承HttpServlet
+  - 利用@WebServlet注解配置
+  - 在启动类中，添加@ServletComponentScan
+```java
+@WebServlet(name="helloservlet",urlPatterns="/hello.do")
+public class HelloServlet extends HttpServlet{
 
-			@WebServlet(name="helloservlet",urlPatterns="/hello.do")
-			public class HelloServlet extends HttpServlet{
-			
-			    public void service(
-			        HttpServletRequest request,HttpServletResponse response) throws IOException{
-			        response.setContentType("text/html;charset=UTF-8");
-			        PrintWriter out = response.getWriter();
-			        out.println("Hello Servlet");
-			        out.close();
-			
-			    }
-			
-			}
-			
-			Filter
-			编写Filter组件，实现Filter接口
-			利用@WebFilter注解配置
-			在启动类中， 添加@ServletComponentScan
-			
-			@WebFilter(urlPatterns="/hello.do",filterName="somefilter")
-			public class SomeFilter implements Filter{
-			
-			    @Override
-			    public void init(FilterConfig filterConfig) throws ServletException {
-			        // TODO Auto-generated method stub
-			
-			    }
-			
-			    @Override
-			    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			            throws IOException, ServletException {
-			        System.out.println("-----doFilter------");
-			        chain.doFilter(request, response);//调用后续servlet\jsp等
-			
-			    }
-			
-			    @Override
-			    public void destroy() {
-			        // TODO Auto-generated method stub
-			
-			    }
-			
-			}
-			
-			Listener
-			编写Listener组件
-			利用@WebListener注解配置
-			在启动类中， 添加@ServletComponentScan
-			
-			启用druid连接池的监控功能
-			配置启用StatViewServlet组件
-			
-			@WebServlet(urlPatterns="/druid/*",initParams={
-			    @WebInitParam(name="loginUsername",value="xdl"),
-			    @WebInitParam(name="loginPassword",value="123")
-			})
-			public class DruidStatServlet extends StatViewServlet{
-			
-			}
-			
-			配置启用WebStatFilter组件 
-			
-			@WebFilter(urlPatterns="/*",initParams={
-				@WebInitParam(name="exclusions",value="*.js,*.jpg,*.css,/druid/*")
-			})
-			public class DruidStatFilter extends WebStatFilter{
-			
-			}
+    public void service(
+        HttpServletRequest request,HttpServletResponse response) throws IOException{
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("Hello Servlet");
+        out.close();
 
+    }
+
+}
+```
+2. Filter
+   - 编写Filter组件，实现Filter接口
+   - 利用@WebFilter注解配置
+   - 在启动类中， 添加@ServletComponentScan
+```java
+@WebFilter(urlPatterns="/hello.do",filterName="somefilter")
+public class SomeFilter implements Filter{
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+        System.out.println("-----doFilter------");
+        chain.doFilter(request, response);//调用后续servlet\jsp等
+
+    }
+
+    @Override
+    public void destroy() {
+        // TODO Auto-generated method stub
+
+    }
+
+}
+```
+3. Listener
+   - 编写Listener组件
+   - 利用@WebListener注解配置
+   - 在启动类中， 添加@ServletComponentScan
+
+
+
+
+
+- 启用druid连接池的监控功能
+  - 配置启用StatViewServlet组件
+
+    ```java
+    @WebServlet(urlPatterns="/druid/*",initParams={
+        @WebInitParam(name="loginUsername",value="xdl"),
+        @WebInitParam(name="loginPassword",value="123")
+    })
+    public class DruidStatServlet extends StatViewServlet{
+
+    }
+    ```
+
+  - 配置启用WebStatFilter组件 
+
+      ```java
+      @WebFilter(urlPatterns="/*",initParams={
+          @WebInitParam(name="exclusions",value="*.js,*.jpg,*.css,/druid/*")
+      })
+      public class DruidStatFilter extends WebStatFilter{
+	
+      }
+      ```
 ### SpringBoot 任务调用
+
 #### 服务器启动时自动执行某个任务
-SpringBoot提供了两种方法，编写一个组件实现ApplicationRunner或CommandLineRunner。
 
-1.	ApplicationRunner
+​	SpringBoot提供了两种方法，编写一个组件实现**ApplicationRunner**或**CommandLineRunner**。
 
+1. ApplicationRunner
+	```java
 	@Component
 	@Order(2)
 	public class MyTask1 implements ApplicationRunner{
@@ -707,19 +724,21 @@ SpringBoot提供了两种方法，编写一个组件实现ApplicationRunner或Co
 	    }
 	
 	}
-	.	CommandLineRunner
+	```
+2. CommandLineRunner
+  ```java
+  @Component
+  @Order(1)
+  public class MyTask2 implements CommandLineRunner{
 
-	@Component
-	@Order(1)
-	public class MyTask2 implements CommandLineRunner{
-	
-	    @Override
-	    public void run(String... args) throws Exception {
-	        System.out.println("自动执行任务2处理");
-	    }
-	
-	}
-提示：可以利用@Order指定任务触发顺序，1、2、3..
+      @Override
+      public void run(String... args) throws Exception {
+          System.out.println("自动执行任务2处理");
+      }
+
+  }
+  ```
+  > 提示：可以利用@Order指定任务触发顺序，1、2、3..
 
 #### 服务器启动后定时自动执行某个任务
 案例：每隔5S调用任务打印输出当前时间。
@@ -789,9 +808,9 @@ spring提供了一套test测试框架，与junit结合应用，利用junit启动
 	    }
 
 ### Redis
-### Redis
 
 #### Redis简介
+
 Redis是完全基于内存的存储（内存数据库），存储结构为key-value键值对模式，value可以是字符串、列表、集合、有序集合、哈希类型。
 
 Redis是属于NoSQL数据库(非关系型数据库)之一，NoSQL包含： 
@@ -1046,4 +1065,24 @@ Redis内部提供了RDB和AOF两种持久化机制。
 		PageHelper.startPage(2,5);
 		List<Dept> list = deptDao.loadAll();
 		springboot test测试
+
+
+### application.yml Note 2018-03-20T09.03.55
+
+```yml
+server:
+ port: 8080
+ context-path: /projectName
+spring:
+ datasource:
+  username: scott
+  password: tiger
+  url: jdbc:oracle:thin:@localhost:1521:uioqv
+  driverClassName: oracle.jdbc.OracleDriver
+  type: org.apache.comments.dbcp.BasicDataSource
+ mvc:
+  view:
+   prefix: /
+   suffix: .jsp
+```
 

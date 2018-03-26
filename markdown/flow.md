@@ -10,3 +10,6 @@ cond(yes)->e
 cond(no)->sub->io
 ```
 
+
+
+![用户用例](http://yuml.me/diagram/scruffy/usecase/[user]-(Login), [user]-(Logout))
