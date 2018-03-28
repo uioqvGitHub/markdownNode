@@ -1067,6 +1067,19 @@ Redis内部提供了RDB和AOF两种持久化机制。
 		springboot test测试
 
 
+### SpringBoot 热启动
+
+​	对java源文件修改后会，自动重新启动。
+
+```xml
+<dependency>
+	  <groupId>org.springframework.boot</groupId>
+	  <artifactId>spring-boot-devtools</artifactId>
+</dependency>
+```
+
+
+
 ### application.yml Note 2018-03-20T09.03.55
 
 ```yml
