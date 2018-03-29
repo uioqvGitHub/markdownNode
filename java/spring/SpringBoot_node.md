@@ -33,6 +33,7 @@ AOP|spring-boot-starter-aop
 mybatis|mybatis-spring-boot-starter
 
 ### springboot parent pom.xml
+
 ```xml
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -102,6 +103,7 @@ public class MyBootApplication {
 }
 ```
 #### SpringBoot默认连接池原理
+
 SpringBoot利用**DataSourceAutoConfiguration**创建出**id=dataSource**的连接池对象。内部创建优先级为：
 
 - 首先会尝试创建**tomcat**连接池(tomcat-jdbc包)
@@ -236,17 +238,17 @@ JdbcTemplate也是JdbcTemplateAutoConfiguration自动配置组件创建。在应
 	</mapper>
 	```
 4. 编写Mapper映射接口
-
-		package com.uioqv.mapper;
-		
-		import java.util.List;
-		
-		import com.uioqv.entity.Emp;
-		
-		public interface EmpMapper {
-			List<Emp> findAll();
-		}
-
+	```java
+	package com.uioqv.mapper;
+	
+	import java.util.List;
+	
+	import com.uioqv.entity.Emp;
+	
+	public interface EmpMapper {
+	    List<Emp> findAll();
+	}
+	```
 
 5. 启动类添加@MapperScan
 
@@ -741,77 +743,81 @@ public class SomeFilter implements Filter{
   > 提示：可以利用@Order指定任务触发顺序，1、2、3..
 
 #### 服务器启动后定时自动执行某个任务
-案例：每隔5S调用任务打印输出当前时间。
+​	案例：每隔5S调用任务打印输出当前时间。
 
-在启动类前添加@EnableScheduling，开启Schedul任务调度模块
-编写任务组件，使用@@Scheduled
+- 在启动类前添加@EnableScheduling，开启Schedul任务调度模块
+- 编写任务组件，使用@Scheduled
+  ```java
+  @Component
+  public class MyTask3 {
+  //  @Scheduled(fixedRate=5000,initialDelay=2000)
+      @Scheduled(cron="0/5 * * ? * *")
+      public void execute(){
+          System.out.println("自动执行任务3,时间:"+new Date());
+      }
 
-	@Component
-	public class MyTask3 {
-	
-	//  @Scheduled(fixedRate=5000,initialDelay=2000)
-	    @Scheduled(cron="0/5 * * ? * *")
-	    public void execute(){
-	        System.out.println("自动执行任务3,时间:"+new Date());
-	    }
-	
-	}
-
-通过corn表达式，方便定时，具体语法参考下面资料：
+  }
+  ```
+  通过cron表达式，方便定时，具体语法参考下面资料：
 
 ![Scheduled_cron](/.images/1267492514.png)
 
 ### SpringBootTest
-spring提供了一套test测试框架，与junit结合应用，利用junit启动。
+​	spring提供了一套test测试框架，与junit结合应用，利用junit启动。
 
 #### 测试Spring容器中对象方法
 将DeptDao对象注入到Test类测试。
 
-	    @RunWith(SpringRunner.class)
-	    @SpringBootTest(classes={MyBootApplication.class})
-	    public class TestDeptDao {
-	
-	        @Autowired
-	        private DeptDao deptDao;
-	
-	        @Test
-	        public void test1(){
-	            List<Dept> list = deptDao.loadAll();
-	            for(Dept dept:list){
-	                System.out.println(dept.getDeptno()+" "+dept.getDname());
-	            }
-	        }
-	
-	    }
-#### 测试SpringMVC处理流程
-将Controller注入，然后利用MockMVC、MockResult等API测试MVC流程。
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes={MyBootApplication.class})
+public class TestDeptDao {
 
-	    @RunWith(SpringRunner.class)
-	    @SpringBootTest(classes={MyBootApplication.class})
-	    public class TestRestful {
-	
-	        @Autowired
-	        private DeptController controller;
-	
-	        @Test
-	        public void test1() throws Exception{
-	            //发送http请求调用resuful服务
-	            MockMvc mock = MockMvcBuilders.standaloneSetup(controller).build();
-	            //创建一个/dept/10 GET类型请求
-	            RequestBuilder getRequest = MockMvcRequestBuilders.get("/dept/10");
-	            //发送请求,获取返回结果信息
-	            MvcResult result = mock.perform(getRequest).andReturn();
-	            String content = result.getResponse().getContentAsString();
-	            System.out.println(content);
-	        }
-	
-	    }
+    @Autowired
+    private DeptDao deptDao;
+
+    @Test
+    public void test1(){
+        List<Dept> list = deptDao.loadAll();
+        for(Dept dept:list){
+            System.out.println(dept.getDeptno()+" "+dept.getDname());
+        }
+    }
+
+}
+```
+#### 测试SpringMVC处理流程
+​	将Controller注入，然后利用MockMVC、MockResult等API测试MVC流程。
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes={MyBootApplication.class})
+public class TestRestful {
+
+    @Autowired
+    private DeptController controller;
+
+    @Test
+    public void test1() throws Exception{
+        //发送http请求调用resuful服务
+        MockMvc mock = MockMvcBuilders.standaloneSetup(controller).build();
+        //创建一个/dept/10 GET类型请求
+        RequestBuilder getRequest = MockMvcRequestBuilders.get("/dept/10");
+        //可以继续用.流式调用，增加其他属性 .param（）等
+        //发送请求,获取返回结果信息
+        MvcResult result = mock.perform(getRequest).andReturn();
+        String content = result.getResponse().getContentAsString();
+        System.out.println(content);
+    }
+
+}
+```
 
 ### Redis
 
 #### Redis简介
 
-Redis是完全基于内存的存储（内存数据库），存储结构为key-value键值对模式，value可以是字符串、列表、集合、有序集合、哈希类型。
+​	Redis是完全基于内存的存储（内存数据库），存储结构为key-value键值对模式，value可以是字符串、列表、集合、有序集合、哈希类型。
 
 Redis是属于NoSQL数据库(非关系型数据库)之一，NoSQL包含： 
 
@@ -823,58 +829,57 @@ Redis优点：
 		适合做应用程序的缓存
 
 #### Redis常用命令
-1.	字符串操作
+1. 字符串操作
 
-		set key value //存
-		get key //取
-		strlen key //取value字符长度
-		incr key //value值加1
-		incrby key n //value值加n
-		decr key //value值减1
-		decrby key n //value值减n
-		append key str //将str拼接到原来value后面
-		key操作
-		
-		del key //删除key
-		keys pattern //查看有哪些key
-		expire key 秒 //指定失效时长,单位秒
-		pexpire key 毫秒 //指定失效时长,单位毫秒
-		type key //查看value类型
+    set key value //存
+    get key //取
+    strlen key //取value字符长度
+    incr key //value值加1
+    incrby key n //value值加n
+    decr key //value值减1
+    decrby key n //value值减n
+    append key str //将str拼接到原来value后面
+2. key操作
 
-	.	哈希操作(Java map, Redis hash)
+    del key //删除key
+    keys pattern //查看有哪些key
+    expire key 秒 //指定失效时长,单位秒
+    pexpire key 毫秒 //指定失效时长,单位毫秒
+    type key //查看value类型
 
-		hset key 字段名 字段值
-		hmset key 字段名1 字段值1 字段名2 字段值2
-		hget key 字段名
-		hmget key 字段名1 字段名2
-		hlen key //返回字段数量
-		hkeys key //返回字段名
-		hdel key 字段名 //删除字段名
+3. 哈希操作(Java map, Redis hash)
+
+    hset key 字段名 字段值
+    hmset key 字段名1 字段值1 字段名2 字段值2
+    hget key 字段名
+    hmget key 字段名1 字段名2
+    hlen key //返回字段数量
+    hkeys key //返回字段名
+    hdel key 字段名 //删除字段名
 
 3. 列表操作(Java List, Redis list)
 
-		lpush key value //从头部添加
-		rpush key value //从结尾添加
-		lrange key begin end //获取指定区间的元素
-		llen key //返回集合元素数
-		lpop key //将头部元素弹出
-		rpop key //将尾部元素弹出
+    lpush key value //从头部添加
+    rpush key value //从结尾添加
+    lrange key begin end //获取指定区间的元素
+    llen key //返回集合元素数
+    lpop key //将头部元素弹出
+    rpop key //将尾部元素弹出
 3. 集合操作(Java Set, Redis set)
 
-		sadd key value //存值
-		smembers key //取值
-		srem key value //删除元素
-		scard key //获取元素数量
-		srandmember key n //获取n个随机元素
-		spop key //弹出一个随机元素
+    sadd key value //存值
+    smembers key //取值
+    srem key value //删除元素
+    scard key //获取元素数量
+    srandmember key n //获取n个随机元素
+    spop key //弹出一个随机元素
 4. 有序集合操作(Java TreeSet, Redis zet)
 
-		zadd key score value //存值
-		zrange key begin end //获取元素（由小到大）
-		zrevrange key begin end //获取元素（由大到小）
-		zcard key //获取元素个数
-		zcount key min max //统计分数区间个数
-
+    zadd key score value //存值
+    zrange key begin end //获取元素（由小到大）
+    zrevrange key begin end //获取元素（由大到小）
+    zcard key //获取元素个数
+    zcount key min max //统计分数区间个数
 
 #### Java访问Redis
 ##### 原始API Jedis对象操作
@@ -969,73 +974,74 @@ Redis作为系统的缓存，介于业务和关系型数据库之间。
 
 
 
--	案例：利用Redis优化部门列表显示
+- 案例：利用Redis优化部门列表显示
 
-	1.	在pom.xml定义boot-redis
+  1. 在pom.xml定义boot-redis
+    ```xml
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-redis</artifactId>
+    </dependency>
+    ```
 
-			<dependency>
-			    <groupId>org.springframework.boot</groupId>
-			    <artifactId>spring-boot-starter-redis</artifactId>
-			</dependency>
+  	.	在application.properties定义redis连接参数
 
-		.	在application.properties定义redis连接参数
+  	spring.redis.host=localhost
+  	spring.redis.port=6379
+  3. 注入RedisTemplate\<Object,Object>使用
 
-			spring.redis.host=localhost
-			spring.redis.port=6379
-		.	注入RedisTemplate<Object,Object>使用
+  	@Controller
+  	public class TemplateController {
+  	
+  	    @Autowired
+  	    private DeptDao deptDao;
+  	    
+  	    @Autowired
+  	    private RedisTemplate<Object, Object> redis;
+  	    
+  	    @RequestMapping("/template/list.do")
+  	    public ModelAndView list(){
+  	        List<Dept> list = null;
+  	        //访问redis,加载缓存数据
+  	        list = (List)redis.opsForValue().get("depts");
+  	        //如果缓存没有，去数据库加载，并且将返回结果放入redis缓存
+  	        if(list == null){
+  	            list = deptDao.loadAll();
+  	            redis.opsForValue().set("depts", list);
+  	            System.out.println("从数据库缓存获取数据");
+  	        }else{
+  	            System.out.println("从Redis缓存获取数据");
+  	        }
+  	        ModelAndView mav = new ModelAndView();
+  	        mav.setViewName("list");
+  	        mav.getModel().put("depts", list);
+  	        return mav;
+  	    }
+  	}
+  4. 利用自动启动调用任务提前向缓存加载数据
 
-			@Controller
-			public class TemplateController {
-			
-			    @Autowired
-			    private DeptDao deptDao;
-			
-			    @Autowired
-			    private RedisTemplate<Object, Object> redis;
-			
-			    @RequestMapping("/template/list.do")
-			    public ModelAndView list(){
-			        List<Dept> list = null;
-			        //访问redis,加载缓存数据
-			        list = (List)redis.opsForValue().get("depts");
-			        //如果缓存没有，去数据库加载，并且将返回结果放入redis缓存
-			        if(list == null){
-			            list = deptDao.loadAll();
-			            redis.opsForValue().set("depts", list);
-			            System.out.println("从数据库缓存获取数据");
-			        }else{
-			            System.out.println("从Redis缓存获取数据");
-			        }
-			        ModelAndView mav = new ModelAndView();
-			        mav.setViewName("list");
-			        mav.getModel().put("depts", list);
-			        return mav;
-			    }
-			}
-		.	利用自动启动调用任务提前向缓存加载数据
-
-			@Component
-			@Order(1)
-			public class MyTask1 implements ApplicationRunner{
-			
-			    @Autowired
-			    private DeptDao deptDao;
-			
-			    @Autowired
-			    private RedisTemplate<Object, Object> redis;
-			
-			    @Override
-			    public void run(ApplicationArguments args) throws Exception {
-			        System.out.println("自动执行任务1处理,将部门列表数据加载到缓存");
-			        List<Dept> list = deptDao.loadAll();
-			        redis.opsForValue().set("depts", list);
-			        //将单个dept缓存
-			        for(Dept dept:list){
-			            redis.opsForValue().set("dept:"+dept.getDeptno(), dept);
-			        }
-			    }
-			
-			}
+  	@Component
+  	@Order(1)
+  	public class MyTask1 implements ApplicationRunner{
+  	
+  	    @Autowired
+  	    private DeptDao deptDao;
+  	    
+  	    @Autowired
+  	    private RedisTemplate<Object, Object> redis;
+  	    
+  	    @Override
+  	    public void run(ApplicationArguments args) throws Exception {
+  	        System.out.println("自动执行任务1处理,将部门列表数据加载到缓存");
+  	        List<Dept> list = deptDao.loadAll();
+  	        redis.opsForValue().set("depts", list);
+  	        //将单个dept缓存
+  	        for(Dept dept:list){
+  	            redis.opsForValue().set("dept:"+dept.getDeptno(), dept);
+  	        }
+  	    }
+  	
+  	}
 
 #### Redis持久化机制
 Redis内部提供了RDB和AOF两种持久化机制。
@@ -1050,22 +1056,22 @@ Redis内部提供了RDB和AOF两种持久化机制。
 
 提示：两种可以都开启，但是恢复时优先使用日志模式。
 
-
 ### Mybatis分页处理
 
 1.	添加pom.xml定义
-
-		<dependency>
-		  <groupId>com.github.pagehelper</groupId>
-		  <artifactId>pagehelper-spring-boot-starter</artifactId>
-		  <version>1.2.3</version>
-		</dependency>
-	.	代码
-
-		PageHelper.startPage(2,5);
-		List<Dept> list = deptDao.loadAll();
-		springboot test测试
-
+	```xml
+	<dependency>
+	    <groupId>com.github.pagehelper</groupId>
+	    <artifactId>pagehelper-spring-boot-starter</artifactId>
+	    <version>1.2.3</version>
+	</dependency>
+	```
+2. 代码
+	```java
+	PageHelper.startPage(2,5);
+	List<Dept> list = deptDao.loadAll();
+	springboot test测试
+	```
 
 ### SpringBoot 热启动
 
