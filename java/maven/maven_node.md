@@ -2,6 +2,33 @@
 
 [TOC]
 
+### 修改jdk版本
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.6.0</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                <encoding>${project.build.sourceEncoding}</encoding>
+                <compilerArguments>
+                    <verbose />
+                 	<bootclasspath>
+                         ${java.home}/lib/rt.jar;${java.home}/lib/jce.jar
+                    </bootclasspath>
+                </compilerArguments>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
+
 ### 将其他Maven项目引入当前项目
 
 ​	被引入的项目只能是jar或pom。 
