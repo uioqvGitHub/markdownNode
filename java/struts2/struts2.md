@@ -127,16 +127,119 @@ st->op1->op2->op3->op4->op5->e
    <package namespace="/com/uioqv"></package>
    ```
 
+##### `<result-types>`
+
+
+
+######`<result-type>`
+
+
+
+##### `<interceptors>`
+
+```java
+package com.uioqv.struts2.interceptor;
+
+import com.opensymphony.xwork2.ActionInvocation;
+import com.opensymphony.xwork2.interceptor.Interceptor;
+
+public class Demo1Interceptor implements Interceptor {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String intercept(ActionInvocation actionInvocation) throws Exception {
+		System.out.println("进入拦截器");		
+		actionInvocation.invoke();
+		System.out.println("拦截器");
+		return null;
+	}
+
+}
+
+```
+
+> status.xml
+
+```xml
+<interceptors>
+	<interceptor name="inte1" class="com.uioqv.struts2.interceptor.Demo1Interceptor" />
+	<interceptor name="inte2" class="com.uioqv.struts2.interceptor.Demo2Interceptor" />
+</interceptors>
+```
+
+
+###### `<interceptor>`
+
+
+
+
+##### `<default-interceptor-ref>`
+
+##### `<global-results>`
+
+配置全局的result
+
+```xml
+<global-results>
+	<result name="nologin">/WEB-INF/login.jsp</result>
+</global-results>
+```
+
+######`<result>`
+
+
 ##### `<action>`
 
 1. `class`属性默认为`ActionSupport`
 
    在`struts-default`中有定义
+```xml
+<action name="hello" class="com.uioqv.struts2.action.HelloAction">
+    <interceptor-ref name="inte2" />
+    <result name="success" type="dispatcher">
+        /WEB-INF/hello.jsp
+    </result>
+</action>
+```
+
+###### `<interceptor-ref>`
 
 ###### `<result>`
 
 1. `name`属性默认为`success`
 2. `type`属性默认为`dispatcher`
+
+
+
+
+
+
+
+
+
+默认的拦截器， 当指定拦截器时默认的不会调用
+
+
+
+
+
+
 
 ### request, session, appliction的使用
 
@@ -212,3 +315,92 @@ st->op1->op2->op3->op4->op5->e
 
      实现`ServletResponseAware`
 
+
+### 常用Result组件
+
+1. jsp响应
+
+   - dispatcher
+
+     ```xml
+     <result name="" type="dispatcher">
+     	/hello.jsp
+     </result>
+     ```
+
+   - redirect
+
+     ```xml
+     <result name="" type="redirect">
+     	/hello.do
+     </result>
+     ```
+
+2. 调下一个Action
+
+   - redirectAction（重定向方式)
+
+     ```xml
+     <result name="" type="redirectAction">
+     	<param name="actionName"></param>
+         <param name="namespace"></param>
+     </result>
+     ```
+
+   - chain(转发方式)
+
+     ```xml
+     <result name="" type="chain">
+     	<param name="actionName"></param>
+         <param name="namespace"></param>
+     </result>
+     ```
+
+3. json 响应
+
+   不加param节点会将action内全部属性写到前台
+
+   加param-root 配置显示单个属性
+
+   加param-includeProperties 配置显示多个属性
+
+   > 需要引入jar包
+
+   ```xml
+   <dependency>
+       <groupId>org.apache.struts</groupId>
+       <artifactId>struts2-json-plugin</artifactId>
+       <version>2.5.16</version>
+   </dependency>
+   ```
+
+   > `<package> `需要设置 `extends="json-default"`
+
+   ```xml
+   <result name="" type="json">
+       <param name="root">属性名</param>
+       <param name="includeProperties">属性名,属性名</param>
+   </result>
+   ```
+
+### 注解配置
+
+> Action组件放在action包名中， 类命名带有Action.
+
+```xml
+<dependency>
+    <groupId>org.apache.struts</groupId>
+    <artifactId>struts2-convention-plugin</artifactId>
+    <version>2.5.16</version>
+</dependency>
+```
+
+#### @Action
+
+####@Result
+
+#### @ParentPackage
+
+#### @Namespace
+
+####@Interceptor

@@ -48,6 +48,12 @@ Set<Object> seakHashSet = Collections.newSetFromMap(
 
 > 参数中的Map必需是Empty的。
 
+### 并发
+
+#### CountDownLatch
+
+​	CountDownLatch是通过一个计数器来实现的， 计数器的初始值为线程的数量。 每当一个线程完成了自己的任务后， 计数器的值会减1. 当计数器值到达0时， 表示所有的线程已经完成了任务， 然后在锁上等待的线程就可以恢复执行任务。
+
 ###cglib与jdk动态代理机制
 
 ####jdk动态代理
@@ -136,6 +142,7 @@ public class MyJDKProxy {
 }
 ```
 #### cglib动态代理
+
 ##### 涉及的类 MethodInterceptor, Enhancer
 
 1. MethodInterceptor 
