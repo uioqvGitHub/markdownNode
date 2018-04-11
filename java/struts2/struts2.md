@@ -403,4 +403,81 @@ public class Demo1Interceptor implements Interceptor {
 
 #### @Namespace
 
-####@Interceptor
+#### @Interceptor
+
+
+
+### spring struts2整合
+
+1. 搭建Struts2 + Spring环境
+   - 引入struts2和spring 的jar包
+   - 引入struts.xml和applicationContext.xm
+   - 引入struts2-spring-pugin.jar包
+   - 在web.xml配置ContextLoaderListener
+2. 编写HelloAction,  将经纳入Spring 容器中
+3. 编写hello.jsp
+4. 配置Struts2请求响应处理流程
+   - 配置Filter控制器
+   - 配置Action + Result
+
+##### applictionContext.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.uioqv"/>
+</beans>
+```
+
+##### struts.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+	"http://struts.apache.org/dtds/struts-2.5.dtd">
+<struts>
+	<package name="demo1" extends="struts-default">
+		<action name="hello" class="helloAction">
+			<result name="success" type="dispatcher">
+				/WEB-INF/hello.jsp
+			</result>
+		</action>	
+	</package>
+</struts>
+
+```
+
+##### web.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  <display-name>struts2_spring</display-name>
+<context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applicationContext.xml</param-value>
+</context-param>
+  <listener>
+  	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <filter>
+  	<filter-name>struts_mvc</filter-name>
+  	<filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>struts_mvc</filter-name>
+ 	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+</web-app>
+```
+
