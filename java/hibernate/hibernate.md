@@ -84,3 +84,39 @@ session.close();
    - 配置生成器
 
    ​
+
+### 查询操作
+
+#### HQL 操作
+
+Hibernate Query Language 面向对象查询语言
+
+HQL 语句是针对映射的对象和属性进行查询操作
+
+HQL和SQL区别：
+
+1. HQL属于面向对象查询，SQL 属于面向结构查询
+2. HQL用类名和属性名，  SQL 用表名和字段名
+3. HQL 中类名属性名大小写敏感  ；   SQL  中表名和字段名不敏感
+4. HQL不支持select * 写法
+5. HQL不支持join on 中的on 语句
+
+> sql
+
+```sql
+select * from dept
+```
+
+> hql
+
+```sql
+from Dept
+```
+
+
+
+#### Criteria操作
+
+
+
+#### NativeSQL操作
