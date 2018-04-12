@@ -35,4 +35,20 @@
 
 #### 覆盖`Object.equals`
 
-​	如果类具有自己特有的 “逻辑相等” 概念（不同于对象等同的概念）， 而且超类还没有覆盖equals以实现期望的行为。
+​	如果类具有自己特有的 “逻辑相等” 概念（不同于对象等同的概念）， 而且超类还没有覆盖equals以实现期望的行为，这通常属于“值类”的情形。
+
+- 在覆盖equals方法的时候， 必须遵守它的通用约定。
+
+  - 自反性(reflexive)
+
+     对于任何非null 的引用值x, xequals(x) 必须返回true。
+
+  - 对称性(symmetric)
+
+    对于任何非null的引用值x和y， 当且仅当y.equals(x) 返回true时, x.equals(y)必须返回true。
+
+  - 传递性(transitive)
+
+    对于任何非null的引用值x、y和z， 如果x.equals(y)返回true， 并且y.equals(z) 也返回true， 那么 x.equals(z) 也必须返回true。
+
+  - 一致性(consistent)
