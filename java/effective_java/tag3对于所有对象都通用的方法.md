@@ -39,16 +39,20 @@
 
 - 在覆盖equals方法的时候， 必须遵守它的通用约定。
 
-  - 自反性(reflexive)
+  - 自反性(reflexive)	**对象必须等于其自身**
 
      对于任何非null 的引用值x, xequals(x) 必须返回true。
 
-  - 对称性(symmetric)
+  - 对称性(symmetric)    **任何两个对象必须等于其自身**
 
     对于任何非null的引用值x和y， 当且仅当y.equals(x) 返回true时, x.equals(y)必须返回true。
 
-  - 传递性(transitive)
+  - 传递性(transitive)     
 
     对于任何非null的引用值x、y和z， 如果x.equals(y)返回true， 并且y.equals(z) 也返回true， 那么 x.equals(z) 也必须返回true。
 
   - 一致性(consistent)
+
+     对于任何非null的引用值 x 和 y， 只要 equals 的比较操作在对象中所用的信息没有被修改， 多次调用 x.equals(y) 就会一致地返回 true, 或者一致的返回 false
+
+  - 对于任务非null 的引用值 x, x.equals(null) 必须返回 false.
