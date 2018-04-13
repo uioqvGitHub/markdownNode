@@ -39,20 +39,36 @@
 
 - 在覆盖equals方法的时候， 必须遵守它的通用约定。
 
-  - 自反性(reflexive)	**对象必须等于其自身**
+  1. 自反性(reflexive)	**对象必须等于其自身**
 
      对于任何非null 的引用值x, xequals(x) 必须返回true。
 
-  - 对称性(symmetric)    **任何两个对象必须等于其自身**
+  2. 对称性(symmetric)    **任何两个对象必须等于其自身**
 
     对于任何非null的引用值x和y， 当且仅当y.equals(x) 返回true时, x.equals(y)必须返回true。
 
-  - 传递性(transitive)     
+  3. 传递性(transitive)     **如果一个对象等于第二个对象， 并且第二个对象又等于第三个对象， 则第一个对象一定等于第三个对象**
 
     对于任何非null的引用值x、y和z， 如果x.equals(y)返回true， 并且y.equals(z) 也返回true， 那么 x.equals(z) 也必须返回true。
 
-  - 一致性(consistent)
+  4. 一致性(consistent)     **如果两个对象相等， 它们就必须始终保持相去**
 
      对于任何非null的引用值 x 和 y， 只要 equals 的比较操作在对象中所用的信息没有被修改， 多次调用 x.equals(y) 就会一致地返回 true, 或者一致的返回 false
 
-  - 对于任务非null 的引用值 x, x.equals(null) 必须返回 false.
+  5. 对于任务非null 的引用值 x, x.equals(null) 必须返回 false.
+
+- 实现高质量equals方法的诀窍：
+
+  1. 使用`==`操作符检查 ”参数是否为这个对象的引用“。 如果是， 则返回true。
+
+     这只不过是一种性能优化， 如果比较操作有可能很昂贵， 就值得这么做。
+
+  2. 使用`instanceof` 操作符检查 “参数是否为正确的类型”。 如果不是， 则返回false。
+
+  3. 把参数转换成正确的类型。
+
+  4. 对于该类中的每个 ”关键“ 域， 检查参数中的域是否与该对象中对应的域相匹配。
+
+  5. 当编写完成了 equals 方法后， 应该问自己三个问题， 它是否是对称的、 传递的、 一致的？
+
+  ​
