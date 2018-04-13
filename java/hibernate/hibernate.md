@@ -1,122 +1,134 @@
-[TOC]
+执行原始的sql语句。
 
-
-
-### MyBatis和Hibernate 区别
-
-1. Hibernate 可以自动生成 SQL 对数据库操作; MyBatis 需要手写SQL 语句。
-2. Hibernate 封装复杂度高、 学习难度大； MyBatis 简单容易使用。
-3. Hibernate 关联映射有很多种类， 比如一对多， 多对一， 一对一， 多对多等 ；   MyBatis 只有两种加载一个记录、 加载多个记录。
-4. Hibernate 缓存种类很多， 比如一级， 二级， 查询缓存; MyBatis 只有一种缓存。
-5. Hibernate 自动生成SQL ， 自动映射SQL参数 ; MyBatis采用 #{key} 映射SQL参数。
-
-### 添加操作
-
-​	需要提交事务
+查询所有记录
 
 ```java
-Session session = HibernateUtils.getSession();
-Transaction tx = session.beginTransaction();
-session.save(dept);
-tx.commit();
-session.close();
+@Test
+public void test14(){
+    String sql = "select deptno,dname,loc from dept";
+    Session session = HibernateUtil.getSession();
+    NativeQuery<Dept> query = session.createNativeQuery(sql,Dept.class);
+    List<Dept> list = query.getResultList();
+    for(Dept dept:list){
+        System.out.println(dept.getNo()+" "+dept.getName()+" "+dept.getLoc());
+    }
+    session.close();
+}
 ```
 
-#### 主键生成策略
+带条件参数的查询
 
-1. identity
-
-   交给数据库自动生成， 适合MySql和SQL Server 
-
-   > 建表时需要追加自动增长设置
-
-   ```xml
-   <id name="no" colum="deptno" type="integer">
-   	<geterator class="identity"></geterator>
-   </id>
-   ```
-
-2. sequence
-
-   采用指定序列生成主键值，适合Oracle 和DB2
-
-   ```xml
-   <id name="no" colum="deptno" type="integer">
-   	<geterator class="sequence">
-       	<param name="sequence_name">xxx</param>
-       </geterator>
-   </id>
-   ```
-
-3. increment
-
-   先查询主键最大值， 然后加1再插入， 适合各种数据库。
-
-   ```xml
-   <id name="no" colum="deptno" type="integer">
-   	<geterator class="increment"></geterator>
-   </id>
-   ```
-
-4. uuid
-
-   采用uuid算法生成一个字符串类型主键值
-
-   > 表主键字符类型为varchar
-
-   ```xml
-   <id name="no" colum="deptno" type="integer">
-   	<geterator class="uuid"></geterator>
-   </id>
-   ```
-
-5. native 
-
-   会根据方言自动的 使用identity  和sequence 等
-
-6. assigned
-
-   忽略， 需要按程序员指定的id值进行添加 （默认）
-
-7. 自定义主键生成器
-
-   - 实现 IdentiferGenerator接口
-   - 配置生成器
-
-   ​
-
-### 查询操作
-
-#### HQL 操作
-
-Hibernate Query Language 面向对象查询语言
-
-HQL 语句是针对映射的对象和属性进行查询操作
-
-HQL和SQL区别：
-
-1. HQL属于面向对象查询，SQL 属于面向结构查询
-2. HQL用类名和属性名，  SQL 用表名和字段名
-3. HQL 中类名属性名大小写敏感  ；   SQL  中表名和字段名不敏感
-4. HQL不支持select * 写法
-5. HQL不支持join on 中的on 语句
-
-> sql
-
-```sql
-select * from dept
-```
-
-> hql
-
-```sql
-from Dept
+```java
+@Test
+public void test15(){
+    String sql = "select deptno,dname,loc from dept where dname like :name";
+    Session session = HibernateUtil.getSession();
+    NativeQuery<Dept> query = session.createNativeQuery(sql,Dept.class);
+    query.setParameter("name", "%java%");
+    List<Dept> list = query.getResultList();
+    for(Dept dept:list){
+        System.out.println(dept.getNo()+" "+dept.getName()+" "+dept.getLoc());
+    }
+    session.close();
+}
 ```
 
 
 
-#### Criteria操作
+###注解映射描述
 
+在实体类中使用注解替代hbm.xml描述映射信息.
 
+1. 根据表编写实体类，追加注解标记
 
-#### NativeSQL操作
+   ```java
+   @Entity//实体
+   @Table(name="EMP")//对应EMP表
+   public class Emp implements Serializable{
+
+       @Id
+       @GeneratedValue(strategy=GenerationType.IDENTITY)
+       @Column(name="ID")
+       private int id;
+
+       @Column(name="ENAME")
+       private String ename;
+
+       @Column(name="SEX")
+       private String sex;
+
+       @Column(name="AGE")
+       private int age;
+
+       @Column(name="BIRTHDAY")
+       private Date birthday;
+
+       //省略set和get方法
+
+   }
+   ```
+
+2. 在hibernate.cfg.xml加载实体类
+
+   ```xml
+   <mapping class="cn.xdl.entity.Emp"/> 
+   ```
+
+### 关联映射
+
+关联映射分为一对多、多对一、一对一、多对多等，分别使用<one-to-many>、<many-to-one>、<one-to-one>、<many-to-many>标记定义映射。
+
+Dept --> DEPT (1、主键)
+
+Emp --> EMP (n、主键、外键)
+
+1. 案例：查询某个部门及其员工信息
+
+   - 在Dept类追加emps集合属性
+
+     ```
+     private Set<Emp> emps;//通过关联映射加载emp员工
+     ```
+
+   - 在Dept映射描述中指定<one-to-many>
+
+     ```
+     <set name="emps">
+         <!-- 指定外键字段名 -->
+         <key column="deptno"></key>
+         <!-- 指定关联映射对象 -->
+         <one-to-many class="cn.xdl.entity.Emp"/>
+     </set>
+     ```
+
+   - 编程
+
+     ```
+     @Test//多次sql单表抓取
+     public void test1(){
+         Session session = HibernateUtil.getSession();
+         Dept dept = session.get(Dept.class, 22);
+         System.out.println(dept.getNo()+" "+dept.getName()+" "+dept.getLoc());
+         Set<Emp> emps = dept.getEmps();
+         for(Emp emp:emps){
+             System.out.println(emp.getId()+" "+emp.getEname());
+         }
+         session.close();
+     }
+
+     @Test//一次sql联合抓取
+     public void test2(){
+         Session session = HibernateUtil.getSession();
+         //join fetch
+         Query<Dept> query = session.createQuery(
+             "from Dept d join fetch d.emps where d.no=?");
+         query.setParameter(0, 20);
+         Dept dept = query.uniqueResult();
+         System.out.println(dept.getNo()+" "+dept.getName()+" "+dept.getLoc());
+         Set<Emp> emps = dept.getEmps();
+         for(Emp emp:emps){
+             System.out.println(emp.getId()+" "+emp.getEname());
+         }
+         session.close();
+     }
+     ```

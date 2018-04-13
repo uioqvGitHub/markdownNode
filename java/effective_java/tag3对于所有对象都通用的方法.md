@@ -77,4 +77,5 @@
   2. 不要企图让equals方法过于智能。
   3. 不要将equals声明中的Object对象替换为其他类型
 
-###
+### 第9条： 覆盖 equals 时总要覆盖 hashCode
+
