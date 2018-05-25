@@ -5,3 +5,5 @@
 ### CTRL+ALT+L 代码格式化
 
 ###CTRL+ALT+SPACE CTRL+SPACE 代码提示补全
+
+###CTRL+H 查看类结构
