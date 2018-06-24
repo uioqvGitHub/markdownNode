@@ -1,14 +1,34 @@
+---
+typora-root-url: ../assets
+---
+
 [TOC]
 
-### 1. gitflow
 
-![img](20151230174636677)
+
+### 工作流程   https://www.jianshu.com/p/202de00f267f
+
+1. 克隆    创建分支  
+2. 在新分支编码    add   commit
+3. 第二天
+   1. pull master
+   2. rebase  master
+   3. add commit
+4. 第三-N天  功能未完成   --------->  3.
+5. 分支功能完成后
+6. push
+7. 合并到master 删除分支  
+
+### 1. git   https://blog.csdn.net/fw0124/article/details/50426740
+
+![img](/../版本控制工具/assets/20151230174636677)
 
 1. remote有两个主分支  master, develop   有不同类型的 hotfixes, release, feature 支持型分支。
 2. 每当 `develop` 分支到达一个稳定的阶段，可以对外发布时，所有的改变都会被合并到`master` 分支，并打一个发布版本的 tag
 3. 线上的bug需要紧急修复，从master检出一条hotfixes分支，修复bug，将分支合并到master与develop
 4. 开发新功能，从develop检出一条feature分支，开发功能模块，将分支合并到develop
-   1. develop分支已经比较稳定,检出一条release分支，准备发布新版本修修bug等，合并到master与develop分支![img](20151229145702928-1529398970462)
+   1. develop分支已经比较稳定,检出一条release分支，准备发布新版本修修bug等，合并到master与develop分支
+![img](/../版本控制工具/assets/20151229145702928)
 
 #### feature分支
 
@@ -42,9 +62,5 @@
 
 ​	使用-no-ff标记使得合并操作总是产生一次新的提交，哪怕合并操作可以快速完成。这个标记避免将 feature 分支和团队协作的所有提交的历史信息混在主分支的其它提交之后。比较一下：
 
-![img](20151229150332334)
-
-
-
-
+![img](/../版本控制工具/assets/20151229150332334)
 

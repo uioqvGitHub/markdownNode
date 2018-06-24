@@ -6,7 +6,7 @@ typora-root-url: ../
 
 
 
-git基本操作 Note 2018-03-19T15.13.25
+git基本操作 https://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000
 ========================
 
 
@@ -17,86 +17,23 @@ git基本操作 Note 2018-03-19T15.13.25
 
 ![](/.images/1766480014.jpeg)
 
+![git æ°æ®æµç¨å¾ç¤ºæå¾](/版本控制工具/assets/2429e4d2661e60027537aea0077f6e40.png)
 
-#### 1. 工作区（Working Directory）
+
+#### 1. 工作区（Working Directory）  https://blog.csdn.net/qq_32452623/article/details/78417609
     就是电脑中通过git init初始化的目录
 #### 2. 版本库（Repository）
     工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库
-#### 3. 分支
-    每次提交，Git都把它们串成一条时间线，这条时间线就是一个分支。
-    HEAD严格来说不是指向提交，而是指向master，master才是指向提交的，
-    所以，HEAD指向的就是当前分支。
-一开始的时候，master分支是一条线，Git用master指向最新的提交，再用HEAD指向master，就能确定当前分支，以及当前分支的提交点：
+#### 3. HEAD https://blog.csdn.net/qq_32452623/article/details/79415990
 
+    $ cat .git/HEAD 
+    ref: refs/heads/dev
+    
+    $ cat .git/refs/heads/dev 
+    85b855cab4ed50ba250d2f210f0df8a4707e77c1
 
-
-![0](/.images/1957911147.png)
-
-
-
-每次提交，master分支都会向前移动一步，这样，随着你不断提交，master分支的线也越来越长。
-
-当我们创建新的分支，例如dev时，Git新建了一个指针叫dev，指向master相同的提交，再把HEAD指向dev，就表示当前分支在dev上：
-
-![0 (1)](/.images/1501471077.png)
-
-
-
-从现在开始，对工作区的修改和提交就是针对dev分支了，比如新提交一次后，dev指针往前移动一步，而master指针不变：
-
-![0 (2)](/.images/1611475412.png)
-
-
-
-假如我们在dev上的工作完成了，就可以把dev合并到master上:
-
-![0 (3)](/.images/1750277683.png)
-
-
-
-
-合并完分支后，甚至可以删除dev分支。删除dev分支就是把dev指针给删掉，删掉后，我们就剩下了一条master分支：
-
-
-
-![0 (4)](/.images/1685740803.png)
-
-
-
-
-准备新的feature1分支，在readme.txt中加入abcd.
-切换到master分支，在readme.txt中加入abdd.
-
-![0 (5)](/.images/682962317.png)
-
-
-
-
-
-这时合并feature1分支时，会产生冲突。
-readme.txt内容会显示冲突
-
-    <<<<<<< HEAD
-    abdd.
-    =======
-    abcd.
-    >>>>>>> feature1<br>
-将冲突修改后<br>
-
-![image](https://cdn.liaoxuefeng.com/cdn/files/attachments/00138490913052149c4b2cd9702422aa387ac024943921b000/0)
-
-<br>
-用git log --graph可以看到
-
-    *   fff8f43a2d0788a95e01151f1b2fa81694e46738 marge after
-    |\  
-    | * 9c0bf016f1f5b3ae912d46467c3faee2e030ee93 fea1 commit
-    * | 0f309e2702eed9f6e0f1d12c83ebfe270b8d9b7b master commit1
-    |/  
-    * e6d95562decc7d8ab9826b0eabc8758b1a9a245f dev2 commit
-
----
 ### git基本操作
+
 #### 1. git init
     将当前目录初始化为git版本库
     eg: git init
@@ -112,7 +49,14 @@ readme.txt内容会显示冲突
 #### 5. git diff [file]
     查看add到仓库中的版本，与当前的版本之间的不同，不加路径则查看所有不同
     eg: git diff README.txt, git diff
+| 命令             | 作用             |
+| ---------------- | ---------------- |
+| git diff         | 工作区 vs 暂存区 |
+| git diff head    | 工作区 vs 版本库 |
+| git diff –cached | 暂存区 vs 版本库 |
+
 #### 6. git log
+
     查看仓库的所有版本，即执行过git commit过后创建的所有版本
     显示版本id，作者，时间，描述
     --pretty=oneline参数指定为一行显示日志
@@ -133,7 +77,32 @@ readme.txt内容会显示冲突
 #### 10.git rm [file]
     工作区中的文件删除后，通过此命令将暂存区的文件也删除。
     eg: git rm readme.txt
----
+#### 11.git stash  https://blog.csdn.net/daguanjia11/article/details/73810577
+
+​	我们有时会遇到这样的情况，正在dev分支开发新功能，做到一半时有人过来反馈一个bug，让马上解决，但是新功能做到了一半你又不想提交，这时就可以使用git stash命令先把当前进度保存起来，然后切换到另一个分支去修改bug，修改完提交后，再切回dev分支，使用git stash pop来恢复之前的进度继续开发新功能。下面来看一下git stash命令的常见用法
+
+```
+git stash
+保存当前工作进度，会把暂存区和工作区的改动保存起来。执行完这个命令后，在运行git status命令，就会发现当前是一个干净的工作区，没有任何改动。使用git stash save 'message...'可以添加一些注释
+
+git stash list
+显示保存进度的列表。也就意味着，git stash命令可以多次执行。
+
+git stash pop [–index] [stash_id]
+git stash pop 恢复最新的进度到工作区。git默认会把工作区和暂存区的改动都恢复到工作区。
+git stash pop --index 恢复最新的进度到工作区和暂存区。（尝试将原来暂存区的改动还恢复到暂存区）
+git stash pop stash@{1}恢复指定的进度到工作区。stash_id是通过git stash list命令得到的 
+通过git stash pop命令恢复进度后，会删除当前进度。
+git stash apply [–index] [stash_id]
+除了不删除恢复的进度之外，其余和git stash pop 命令一样。
+
+git stash drop [stash_id]
+删除一个存储的进度。如果不指定stash_id，则默认删除最新的存储进度。
+
+git stash clear
+删除所有存储的进度。
+```
+
 ### git分支操作
 #### 1. git checkout -b [分支名]
     创建并切换分支
@@ -142,20 +111,59 @@ readme.txt内容会显示冲突
     创建分支
     eg: git branch dev
 #### 3. git checkout [分支名]
+
     切换分支
     eg: git checkout dev
-#### 4. git merge [分支名]
+#### 4. git merge/rebase [分支名]   https://blog.csdn.net/wh_19910525/article/details/7554489
     合并分支，合并指定分支到当前分支
-    eg: git merge dev
+    eg: git merge/rebase dev
+    解决冲突
+    在rebase的过程中，也许会出现冲突(conflict). 在这种情况，Git会停止rebase并会让你去解决 冲突；在解决完冲突后，用"git-add"命令去更新这些内容的索引(index), 然后，你无需执行 git-commit,只要执行:
+    $ git rebase --continue
+    这样git会继续应用(apply)余下的补丁。
+    在任何时候，你可以用--abort参数来终止rebase的行动，并且"mywork" 分支会回到rebase开始前的状态。
+    $ git rebase --abort
+merge和  rebase区别
+
+
+
+![img](/版本控制工具/assets/1339683149_4793.jpg)
+
 #### 5. git branch -d [分支名]
+
     删除分支
     eg: git branch -d dev
+    -D  强制删除   分去没有合并出去时 -d会失败
 #### 6. git branch
     查看分支，显示所有的分支与当前的分支
     eg: git branch
 
----
+#### 7.git branch -r
+
+查看远程库所有分支
+
+#### 8. git branch -a
+
+查看远程库和本地库所有分支
+
+#### 9. git branch -m
+
+重命名分支    -M  强制
+
+### git 标签
+
+#### git tag 标签名 [commit id]
+
+添加标签  可以对指定的  id   打标签
+
+### git tag
+
+查看所有标签
+
+
+
 ### git远程仓库
+
 #### 1. git remote add [名字][远程库地址]
 
     添加一个远程库
@@ -163,9 +171,33 @@ readme.txt内容会显示冲突
 #### 2. git remote
     查看关联的远程库
     eg: git remote
+    查看远程库地址  git@git.....
+    git remote -v
 #### 3. git push [远程库名][分支名]
     将master分支的修改，更新到指定远程库
     eg: git push origin master
 #### 4. git clone [远程库地址]
     将远程库克隆到本地
     eg: git git@github.com:uioqvGitHub/testgithub.git
+
+#### 5. git fetch/pull [远程库] \[分支]  https://blog.csdn.net/qq_36113598/article/details/78906882 https://www.jianshu.com/p/d265f7763a3a
+
+```
+执行 git fetch/pull [远程库]会将所有分支最新版本拉取到本地版本库/工作区
+执行 git fetch/pull [远程库] [分支名]  拉取远程库指定分支
+```
+
+> fetch  会创建FETCH_HEAD指针
+>
+> pull  相当于  git fetch [远程库] + git merge FETCH_HEAD
+
+fetch pull的区别
+
+#### ![img](/版本控制工具/assets/git.jpg)
+
+
+
+
+
+
+
