@@ -9,7 +9,7 @@ typora-root-url: ../assets
 ### 工作流程   https://www.jianshu.com/p/202de00f267f
 
 1. 克隆    创建分支  
-2. 在新分支编码    add   commit
+2. 写代码    add   commit
 3. 第二天
    1. pull master
    2. rebase  master
@@ -57,10 +57,4 @@ typora-root-url: ../assets
 - 可能派发自：`master`
 - 必须合并回：`develop` 和 `master`
 - 分支命名规范：`hotfix-*`
-
-### 2. -no-ff标记
-
-​	使用-no-ff标记使得合并操作总是产生一次新的提交，哪怕合并操作可以快速完成。这个标记避免将 feature 分支和团队协作的所有提交的历史信息混在主分支的其它提交之后。比较一下：
-
-![img](/../版本控制工具/assets/20151229150332334)
 

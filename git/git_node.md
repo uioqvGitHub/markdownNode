@@ -67,8 +67,9 @@ git基本操作 https://www.liaoxuefeng.com/wiki/0013739516305929606dd1836124857
     在Git中，用HEAD表示当前版本，上一个版本就是HEAD^，上上一个版本就是HEAD^^，上100个版本HEAD~100
     也可以用版本id指定要返回的版本
     eg: git reset --hard HEAD^，git reset --hard 3628164
+    git reset HEAD [file]  取消暂存
 #### 8. git reflog
-    查看对仓库的所有commit与reset操作
+    查看引用日志， 每将HEAD位置发生变化
     显示版本id，操作，描述
     eg: git reflog
 #### 9. git checkout -- [file]
@@ -123,6 +124,12 @@ git stash clear
     这样git会继续应用(apply)余下的补丁。
     在任何时候，你可以用--abort参数来终止rebase的行动，并且"mywork" 分支会回到rebase开始前的状态。
     $ git rebase --abort
+-no-ff标记
+
+​	使用-no-ff标记使得合并操作总是产生一次新的提交，哪怕合并操作可以快速完成。这个标记避免将 feature 分支和团队协作的所有提交的历史信息混在主分支的其它提交之后。比较一下：
+
+![img](/版本控制工具/assets/20151229150332334)
+
 merge和  rebase区别
 
 
@@ -176,6 +183,7 @@ merge和  rebase区别
 #### 3. git push [远程库名][分支名]
     将master分支的修改，更新到指定远程库
     eg: git push origin master
+    git push origin --delete [branch]  删除远程分支
 #### 4. git clone [远程库地址]
     将远程库克隆到本地
     eg: git git@github.com:uioqvGitHub/testgithub.git
